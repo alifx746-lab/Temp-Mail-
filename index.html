@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zenith Calc</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* ক্যালকুলেটর বডি - দৈর্ঘ্য ঠিক করা হয়েছে */
+        .calc-card {
+            background-color: #ffffff;
+            width: 100%;
+            max-width: 360px; /* চওড়া */
+            height: auto;
+            aspect-ratio: 9 / 16; /* প্রফেশনাল মোবাইল রেশিও */
+            max-height: 700px; /* অতিরিক্ত লম্বা হওয়া রোধ করবে */
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            border-radius: 32px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        }
+
+        /* ডিসপ্লে সেকশন */
+        .display {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: flex-end;
+            padding-bottom: 30px;
+        }
+
+        #result {
+            font-size: 54px;
+            color: #202124;
+            font-weight: 400;
+            word-wrap: break-word;
+            text-align: right;
+            width: 100%;
+        }
+
+        /* বাটন এরিয়া */
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        button {
+            aspect-ratio: 1 / 1; /* বাটনগুলো একদম গোল হবে */
+            border: none;
+            border-radius: 50%;
+            font-size: 22px;
+            background: transparent;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            outline: none;
+        }
+
+        button:active {
+            background-color: #f1f3f4;
+        }
+
+        /* কালার স্কিম */
+        .text-red { color: #d93025; font-weight: 500; }
+        .text-green { color: #1ed760; font-size: 26px; font-weight: bold; }
+        .num { color: #3c4043; font-weight: 500; }
+
+        /* সমান (=) বাটন - ছবির মতো ডিজাইন */
+        .equal-btn {
+            background-color: #1ed760 !important;
+            color: white !important;
+            border-radius: 24px; /* ওভাল শেপ */
+            aspect-ratio: unset; 
+            height: 70px;
+        }
+
+        .equal-btn:hover {
+            box-shadow: 0 4px 12px rgba(30, 215, 96, 0.3);
+        }
+
+        .icon-btn { color: #5f6368; font-size: 18px; }
+
+    </style>
+</head>
+<body>
+
+    <div class="calc-card">
+        <div class="display">
+            <div id="result">0</div>
+        </div>
+
+        <div class="keypad">
+            <button class="text-red" onclick="clearDisplay()">C</button>
+            <button class="text-green" onclick="append('%')">%</button>
+            <button class="text-green" onclick="backspace()">⌫</button>
+            <button class="text-green" onclick="append('/')">÷</button>
+
+            <button class="num" onclick="append('7')">7</button>
+            <button class="num" onclick="append('8')">8</button>
+            <button class="num" onclick="append('9')">9</button>
+            <button class="text-green" onclick="append('×')">×</button>
+
+            <button class="num" onclick="append('4')">4</button>
+            <button class="num" onclick="append('5')">5</button>
+            <button class="num" onclick="append('6')">6</button>
+            <button class="text-green" onclick="append('-')">−</button>
+
+            <button class="num" onclick="append('1')">1</button>
+            <button class="num" onclick="append('2')">2</button>
+            <button class="num" onclick="append('3')">3</button>
+            <button class="text-green" onclick="append('+')">+</button>
+
+            <button class="icon-btn">📅</button>
+            <button class="num" onclick="append('0')">0</button>
+            <button class="num" onclick="append('.')">.</button>
+            <button class="equal-btn" onclick="calculate()">=</button>
+        </div>
+    </div>
+
+    <script>
+        let currentText = "0";
+        const resDisplay = document.getElementById('result');
+
+        function append(char) {
+            if (currentText === "0" && char !== ".") {
+                currentText = char;
+            } else {
+                currentText += char;
+            }
+            update();
+        }
+
+        function clearDisplay() {
+            currentText = "0";
+            update();
+        }
+
+        function backspace() {
+            currentText = currentText.length > 1 ? currentText.slice(0, -1) : "0";
+            update();
+        }
+
+        function update() {
+            resDisplay.innerText = currentText;
+            // লেখা বড় হলে ফন্ট ছোট করার লজিক
+            if(currentText.length > 8) {
+                resDisplay.style.fontSize = "35px";
+            } else {
+                resDisplay.style.fontSize = "54px";
+            }
+        }
+
+        function calculate() {
+            try {
+                // গাণিতিক চিহ্ন ঠিক করে ক্যালকুলেশন
+                let finalVal = eval(currentText.replace('×', '*').replace('÷', '/').replace('−', '-'));
+                currentText = String(Number(finalVal.toFixed(8))); // দশমিকের পর ৮ ঘর পর্যন্ত
+                update();
+            } catch {
+                resDisplay.innerText = "Error";
+                currentText = "0";
+            }
+        }
+    </script>
+</body>
+</html>
